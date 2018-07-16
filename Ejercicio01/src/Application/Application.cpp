@@ -11,6 +11,7 @@
 #include <ApplicationInterface.h>
 #include <ComponentInterface.h>
 #include <GreeterIterface.h>
+#include <MessengerInterface.h>
 
 class Application : public ApplicationInterface, public ComponentInterface
 {
@@ -40,7 +41,14 @@ int Application::run()
     componentFactoryObject->setInterfaceName("GreeterInterface");
     ComponentInterface* greeterComponent = componentFactoryObject->createFrom("./Greeter");
     GreeterInterface* greeterObject = ( (GreeterInterface*) greeterComponent->getInstance() );
-    greeterObject->greet("Hello");
+
+    componentFactoryObject->setInterfaceName("MessengerInterface");
+    ComponentInterface* messengerComponent = componentFactoryObject->createFrom("./Messenger");
+    MessengerInterface* messengerObject = ( (MessengerInterface*) messengerComponent->getInstance() );
+
+
+    greeterObject->greet( messengerObject->say() );  //("Hello");
+    messengerComponent->release();
     greeterComponent->release();
 
     delete componentFactoryObject;
