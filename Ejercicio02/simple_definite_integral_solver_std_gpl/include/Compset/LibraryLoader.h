@@ -13,7 +13,8 @@
     #define RTLD_NOW    2
     #define RTLD_GLOBAL 4
     #include "dlfcn.h"
-
+#elif __APPLE__
+    #include "dlfcnMac.h"
 #elif defined(_WIN32) || defined(WIN32)
     #include <windows.h>
 #endif // defined

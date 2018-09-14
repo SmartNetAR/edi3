@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
     {
         setenv("TERMINAL_QUERY_STRING", argv[1], 0);
     }
-
+    std::cout << "inicio de app \n";
     ComponentFactory* componentFactoryObject = new ComponentFactory();
     componentFactoryObject->setType("Application");
     Component* applicationComponent = componentFactoryObject->createFrom("./lib/libapplication");
