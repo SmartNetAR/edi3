@@ -5,15 +5,16 @@
 * https://opensource.org/licenses/GPL-3.0
 **/
 
-#ifndef LIBRARY_LOADER_H
-#define LIBRARY_LOADER_H
+#ifndef LIBRARYLOADER_H
+#define LIBRARYLOADER_H
 
 #ifdef __unix__
     #define RTLD_LAZY   1
     #define RTLD_NOW    2
     #define RTLD_GLOBAL 4
     #include "dlfcn.h"
-
+#elif __APPLE__
+    #include "dlfcnMac.h"
 #elif defined(_WIN32) || defined(WIN32)
     #include <windows.h>
 #endif // defined
@@ -35,13 +36,13 @@ class LibraryLoader
         LibraryLoader();
 
     private:
-        static LibraryLoader* instance;
-        void* library;
-        void* method;
-        bool freedom;
+        static LibraryLoader* m_instance;
+        void* m_library;
+        void* m_method;
+        bool m_freedom;
 };
 
-LibraryLoader* LibraryLoader::instance = 0;
+LibraryLoader* LibraryLoader::m_instance = 0;
 
 LibraryLoader::LibraryLoader()
 {
@@ -55,47 +56,47 @@ LibraryLoader::~LibraryLoader()
 
 LibraryLoader* LibraryLoader::getInstance()
 {
-    if(instance == 0)
+    if(m_instance == 0)
     {
-        instance = new LibraryLoader();
+        m_instance = new LibraryLoader();
     }
-    return instance;
+    return m_instance;
 }
 
 void* LibraryLoader::loadLibrary(std::string name)
 {
     #ifdef __unix__
         name += ".so";
-        library = dlopen(name.c_str(), RTLD_NOW);
+        m_library = dlopen(name.c_str(), RTLD_NOW);
     #elif defined(_WIN32) || defined(WIN32)
         name += ".dll";
-        library = (void*) LoadLibrary(name.c_str());
+        m_library = (void*) LoadLibrary(name.c_str());
     #endif // defined
 
-    return library;
+    return m_library;
 }
 
 void* LibraryLoader::getExternalFunction(std::string name)
 {
     #ifdef __unix__
-        method = dlsym(library, name.c_str());
+        m_method = dlsym(m_library, name.c_str());
     #elif defined(_WIN32) || defined(WIN32)
-        method = (void*) GetProcAddress((HINSTANCE)library, name.c_str());
+        m_method = (void*) GetProcAddress((HINSTANCE)m_library, name.c_str());
     #endif // defined
 
-    return method;
+    return m_method;
 }
 
 bool LibraryLoader::freeLibrary()
 {
     #ifdef __unix__
-        freedom = dlclose(library);
+        m_freedom = dlclose(m_library);
     #elif defined(_WIN32) || defined(WIN32)
-        freedom = FreeLibrary((HINSTANCE)library);
+        m_freedom = FreeLibrary((HINSTANCE)m_library);
     #endif // defined
 
-    return freedom;
+    return m_freedom;
 }
 
-#endif // LIBRARY_LOADER_H
+#endif // LIBRARYLOADER_H
 
